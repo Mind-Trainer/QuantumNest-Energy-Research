@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QuantumNest Energy Research</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script defer src="/assets/app.js"></script>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+  <a class="brand" href="#overview"><span class="brand-mark" aria-hidden="true">◈</span><span>QuantumNest<small>Energy Research</small></span></a>
+  <nav aria-label="Workspace">
+    <a href="#overview" class="nav-item active" data-view="overview"><span aria-hidden="true">⊞</span> Dispatch</a>
+    <a href="#configuration" class="nav-item" data-view="configuration"><span aria-hidden="true">☷</span> Configuration</a>
+    <a href="#quantum" class="nav-item" data-view="quantum"><span aria-hidden="true">◎</span> Quantum lab</a>
+    <a href="#study" class="nav-item" data-view="study"><span aria-hidden="true">▥</span> Experiment results</a>
+    <a href="#legacy" class="nav-item" data-view="legacy"><span aria-hidden="true">▤</span> Community demo</a>
+  </nav>
+  <div class="sidebar-note"><span></span> Local research workspace</div>
+</aside>
+<main>
+  <header class="top"><span id="breadcrumb">Workspace / Dispatch</span><span class="data-note" id="data-origin">Synthetic inputs</span></header>
+  <section class="view" id="overview">
+    <div class="page-title">
+      <div><h1>Residential energy dispatch</h1><p>Plan appliance and EV demand around solar, tariffs and capacity.</p></div>
+      <button class="secondary" id="export" disabled>Download schedule</button>
+    </div>
+    <div class="controls panel">
+      <label>Scenario<select id="scenario" aria-label="Scenario">
+        <optgroup label="Household"><option value="normal">Normal operation</option><option value="summer">Summer</option><option value="winter">Winter</option><option value="cloudy">Cloud cover</option><option value="uncertain">Solar uncertainty</option><option value="high_tariff">High tariffs</option><option value="high_ev">High EV demand</option><option value="limited_transformer">Limited transformer</option><option value="preference_change">Preference change</option><option value="measured_uci">UCI measured baseline</option></optgroup>
+        <optgroup label="Quantum research"><option value="research-6">6 original bits</option><option value="research-8">8 original bits</option><option value="research-10">10 original bits</option><option value="research-12">12 original bits</option><option value="research-14">14 original bits</option></optgroup>
+      </select></label>
+      <label>Classical solver<select id="solver" aria-label="Classical solver"><option value="cp_sat">OR-Tools CP-SAT</option><option value="milp">HiGHS MILP</option><option value="exhaustive">Exhaustive search</option><option value="greedy">Greedy tariff</option><option value="random">Random feasible</option><option value="annealing">Simulated annealing</option></select></label>
+      <button id="solve">Optimize schedule</button>
+    </div>
+    <div class="notice" id="status" role="status"></div>
+    <div id="metrics" class="metrics"></div>
+    <div class="panel dispatch-chart">
+      <div class="section-title"><div><h2>Hourly energy balance</h2><p>Expected values across the configured solar scenarios · kW</p></div><span class="chart-key"><i></i> Grid import <i></i> PV forecast <i></i> Household load</span></div>
+      <div id="balance"></div>
+    </div>
+    <div class="panel schedule-panel">
+      <div class="section-title"><div><h2>Appliance schedule</h2><p>Hourly dispatch for each service</p></div><span id="schedule-status" class="tag"></span></div>
+      <div id="schedule-table" class="scroll"></div>
+    </div>
+    <div class="panel split" id="transformer-panel"><div><h2>Transformer headroom</h2><p>Worst solar scenario at each hour. Includes neighboring demand.</p></div><div id="headroom"></div></div>
+    <div class="panel rolling">
+      <div class="section-title"><div><h2>Rolling reschedule</h2><p>Apply a forecast or configuration update from a chosen hour onward.</p></div></div>
+      <div class="inline-form">
+        <label>Current hour<input type="number" id="cutoff" min="0" max="24" value="12"></label>
+        <label>Remaining solar (%)<input type="number" id="cloud" min="0" max="100" value="35"></label>
+        <label>Realized PV (optional, kW CSV)<input id="actual" placeholder="Uses first scenario before cutoff"></label>
+        <button id="roll" disabled>Reoptimize remaining hours</button>
+      </div>
+      <div id="changes"></div>
+    </div>
+  </section>
+  <section class="view" id="configuration" hidden>
+    <div class="page-title"><div><h1>Household configuration</h1><p>Edit appliance service, tariffs, capacity and PV scenario inputs.</p></div><button id="save-config">Apply changes</button></div>
+    <div class="panel" id="config-panel">
+      <h2>Appliances and resident preferences</h2>
+      <p>End hours are exclusive. Power, profiles and EV energy use tenths of kW or kWh.</p>
+      <div class="scroll"><table id="appliance-editor"></table></div>
+      <button id="add-appliance" class="secondary">Add appliance</button>
+      <h2>Hourly profiles and scenario weights</h2>
+      <p>Tariffs are in cents per kWh. PV and load inputs use tenths of kW.</p>
+      <div class="profile-editor" id="profile-editor"></div>
+      <details><summary>Advanced JSON input</summary><textarea id="config" rows="12" spellcheck="false" aria-label="Scenario JSON"></textarea><button id="import-json" class="secondary">Load JSON into editor</button></details>
+      <div class="notice" id="config-status" role="status"></div>
+    </div>
+  </section>
+  <section class="view" id="quantum" hidden>
+    <div class="page-title"><div><h1>Quantum lab</h1><p>Run actual Qiskit circuits on a local simulator and inspect measured schedules.</p></div></div>
+    <div class="panel inline-form">
+      <label>Problem<select id="q-case" aria-label="Problem"><option value="research-8">8 original bits</option><option value="research-6">6 original bits</option><option value="research-10">10 original bits</option><option value="research-12">12 original bits</option><option value="research-14">14 original bits</option><option value="current">Current configuration</option></select></label>
+      <label>Encoding<select id="q-solver" aria-label="Encoding"><option value="hybrid">Hybrid pruned XY</option><option value="standard">Standard penalty + X</option><option value="constrained">Constraint-preserving XY</option><option value="pruned_x">Pruned X ablation</option></select></label>
+      <label>Noise<select id="q-noise" aria-label="Noise"><option value="ideal">Ideal</option><option value="gate_1q">One-qubit error</option><option value="gate_2q">Two-qubit error</option><option value="readout">Readout error</option><option value="combined">Combined</option></select></label>
+      <label>Layers<input type="number" id="q-layers" min="1" max="3" value="1"></label>
+      <button id="q-run">Run Qiskit simulation</button>
+    </div>
+    <div class="notice" id="q-status" role="status"></div>
+    <div id="q-metrics" class="metrics"></div>
+    <div id="q-output" hidden>
+      <div class="panel"><h2>Classical comparison</h2><div id="q-comparison" class="scroll"></div></div>
+      <div class="panel">
+        <h2>Measured bitstrings</h2><p>Qiskit order, most significant bit first. Top 20 measured outcomes.</p><div id="histogram"></div>
+      </div>
+      <div class="panel"><h2>QUBO coefficients</h2><p id="matrix-note"></p><div id="matrix" class="scroll"></div><output id="cell-note"></output></div>
+      <div class="panel"><h2>Executed quantum circuit</h2><pre id="circuit" tabindex="0"></pre><details><summary>Transpiled circuit</summary><pre id="transpiled" tabindex="0"></pre></details></div>
+    </div>
+  </section>
+  <section class="view" id="study" hidden>
+    <div class="page-title"><div><h1>Experiment results</h1><p>Executed simulator measurements and classical baseline comparisons.</p></div><a class="secondary" href="/api/results/raw">Download raw runs</a></div>
+    <div class="panel study-files"><a href="/api/results/runs">Run metrics CSV</a><a href="/api/results/summary">Statistics CSV</a><a href="/api/results/paired">Paired comparisons CSV</a><a href="/api/results/instances">Input instances</a><a href="/api/results/manifest">Run manifest</a></div>
+    <div class="panel"><h2>Scaling and ablation</h2><img class="result-figure" src="/figures/scaling.svg" alt="Measured feasibility, optimality and two-qubit gate counts by original problem size"></div>
+    <div class="panel"><h2>Noise and circuit depth</h2><img class="result-figure" src="/figures/noise_depth.svg" alt="Ideal and noisy feasible and optimal shot probabilities across QAOA depths"></div>
+    <div class="panel"><h2>Compare runs</h2><div class="inline-form"><label>Study<select id="study-select" aria-label="Study"><option value="scaling">Scaling</option><option value="noise">Noise</option><option value="classical">Classical</option><option value="initialization">Initialization</option></select></label><label>Metric<select id="metric-select" aria-label="Metric"></select></label></div><div id="study-table" class="scroll"></div></div>
+  </section>
+  <section class="view" id="legacy" hidden>
+    <div class="page-title"><div><h1>Community demonstration</h1><p>Archived concepts from QuantumNest OS · synthetic illustration.</p></div></div>
+    <div class="panel"><h2>Legacy community energy profile</h2><p>The original tariff and solar arrays are displayed as historical demonstration inputs.</p><div id="legacy-chart"></div></div>
+    <div class="panel legacy-grid"><article><h2>Maintenance dispatch</h2><p>Assign staff to service tasks according to availability and urgency.</p></article><article><h2>Amenity booking</h2><p>Coordinate the use of shared rooms with conflicting reservations.</p></article><article><h2>Community utilities</h2><p>Monitor parking allocation, lift journeys, water storage and street lighting.</p></article></div>
+  </section>
+</main>
+</div>
+</body>
+</html>

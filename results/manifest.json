@@ -1,0 +1,76 @@
+{
+  "sizes": [
+    6,
+    8,
+    10,
+    12,
+    14
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "shots": 256,
+  "optimizer_budget": 24,
+  "python": "3.12.14",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "versions": {
+    "qiskit": "2.2.3",
+    "qiskit-aer": "0.17.2",
+    "scipy": "1.16.3",
+    "ortools": "9.14.6206",
+    "numpy": "2.2.6"
+  },
+  "synthetic_noise": {
+    "ideal": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gate_1q": [
+      0.003,
+      0.0,
+      0.0
+    ],
+    "gate_2q": [
+      0.0,
+      0.02,
+      0.0
+    ],
+    "readout": [
+      0.0,
+      0.0,
+      0.02
+    ],
+    "combined": [
+      0.003,
+      0.02,
+      0.02
+    ]
+  },
+  "noise_study_size": 8,
+  "layers": [
+    1,
+    2,
+    3
+  ],
+  "noise_training": "ideal statevector parameters reused for all noise channels"
+}

@@ -1,0 +1,27 @@
+digraph QuantumNest {
+  rankdir=LR;
+  graph [bgcolor="white", pad=.25, nodesep=.35, ranksep=.65, fontname="DejaVu Sans"];
+  node [shape=box, style="rounded,filled", fillcolor="#EEF4ED", color="#709981", fontcolor="#162D22", fontname="DejaVu Sans"];
+  edge [color="#52715F", fontname="DejaVu Sans", fontsize=10];
+  UI [label="Browser dashboard\nConfiguration · dispatch · lab"];
+  API [label="FastAPI\nTyped local JSON API"];
+  Model [label="Physical scheduling model\nPatterns · solar scenarios · capacities"];
+  CP [label="Classical dispatch\nCP-SAT · MILP · heuristics"];
+  QUBO [label="Certified QUBO\nCapacity conflicts · optional pruning"];
+  Ising [label="Ising Hamiltonian\nZ and ZZ terms"];
+  Qiskit [label="Qiskit QAOA\nStatevector + COBYLA"];
+  Aer [label="Aer measurement\nIdeal and synthetic noise"];
+  Valid [label="Decode and validate\nEvaluate physical objective"];
+  History [label="Rolling horizon\nRealized PV and locked service"];
+  Results [label="Reproducible studies\nCounts · CSV · confidence intervals", fillcolor="#FFF2D6"];
+  UI -> API [label="JSON"];
+  API -> Model;
+  API -> History;
+  History -> Model;
+  Model -> CP;
+  Model -> QUBO;
+  QUBO -> Ising -> Qiskit -> Aer -> Valid;
+  CP -> Valid;
+  Valid -> Results;
+  Valid -> API [label="schedule and evidence", constraint=false];
+}

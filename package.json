@@ -1,0 +1,7 @@
+{
+  "name": "quantumnest-energy-research",
+  "private": true,
+  "scripts": {
+    "dev": "python -m backend"
+  }
+}
