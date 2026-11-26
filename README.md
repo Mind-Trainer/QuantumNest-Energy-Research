@@ -22,7 +22,7 @@ QuantumNest is a reproducible scheduling and quantum-encoding research project. 
 
 ## Run locally
 
-Use 64-bit **Python 3.12** on Windows or Linux. The browser UI uses vanilla JavaScript, CSS and HTML with FastAPI, so Node.js is optional for local use. Qiskit 2.2.3, Aer 0.17.2, NumPy, SciPy/HiGHS, OR-Tools, Matplotlib and transitive dependencies are pinned in [requirements.txt](requirements.txt). The project uses the Qiskit circuit API and an explicit SciPy optimization loop, which keeps the X and XY ansätze directly inspectable.
+Use 64-bit **Python 3.12** on Windows or Linux. The browser UI uses vanilla JavaScript, CSS and HTML with FastAPI, so Node.js is optional for local use. Qiskit 2.2.3, Aer 0.17.2, NumPy, SciPy/HiGHS, OR-Tools, Streamlit and the other application dependencies are pinned in [requirements.txt](requirements.txt). The project uses the Qiskit circuit API and an explicit SciPy optimization loop, which keeps the X and XY ansätze directly inspectable.
 
 **Windows PowerShell**
 
@@ -56,13 +56,24 @@ edit the household JSON in the Dispatch view and download schedules and results.
 environment from the platform setup above, then run:
 
 ```bash
-python -m pip install -r requirements-streamlit.txt
+python -m pip install -r requirements.txt
 python -m streamlit run streamlit_app.py --server.address 127.0.0.1
 ```
 
 On Windows, use the environment's `python.exe` for both commands if the environment is inactive. Open the
 [Streamlit dashboard](http://127.0.0.1:8501/). For explicit capacity slack, select **Three-slot slack fixture**
-in the Quantum lab. Run `python -m pytest -q tests/test_streamlit.py` to check the Streamlit workflows.
+in the Quantum lab. Install [requirements-dev.txt](requirements-dev.txt) and run
+`python -m pytest -q tests/test_streamlit.py` to check the Streamlit workflows.
+
+#### Deploy on Streamlit Community Cloud
+
+Use the `main` branch, `streamlit_app.py` as the main file, and **Python 3.12** in Advanced settings.
+Community Cloud uses the root [requirements.txt](requirements.txt) and rebuilds when it changes.
+If the app uses an older Python version, see Streamlit's [Python version instructions](https://docs.streamlit.io/deploy/streamlit-community-cloud/manage-your-app/upgrade-python).
+
+To allow visitors without an account, open the app's **Settings → Sharing**, select **This app is public
+and searchable**, and open the app URL in a signed-out window to verify access.
+The app's sharing setting is separate from the repository's GitHub visibility. [Streamlit sharing guide](https://docs.streamlit.io/deploy/streamlit-community-cloud/share-your-app)
 
 ## Model and algorithms
 
@@ -95,6 +106,7 @@ The main benchmark covers 6, 8, 10, 12, and 14 original decision bits, with 20 i
 The quantum benchmarks use fully specified synthetic loads, PV forecasts, tariffs and appliance patterns. A separate replay uses a CC BY 4.0 measured hourly residual from 1,440 public UCI whole-house and submeter readings. Renewable generation, tariff, and scheduling assumptions remain synthetic in that replay. [Data provenance and reviewed public sources](datasets/README.md)
 
 ```bash
+python -m pip install -r requirements-dev.txt
 python -m pytest -q
 python -m experiments.run --seeds 20 --shots 256 --budget 24
 python -m experiments.demonstrations
