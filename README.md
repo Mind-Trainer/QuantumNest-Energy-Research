@@ -48,6 +48,22 @@ python -m backend
 
 Open [the local dashboard](http://127.0.0.1:8765/) and [interactive API documentation](http://127.0.0.1:8765/docs). Use `python -m backend --port 8766` if the default port is occupied. The service needs no hardware, accounts, API keys or paid services. In the quantum lab, select an included 6–14-bit research case. Larger or unrepresentable configurations use the classical dispatch path.
 
+### Streamlit dashboard
+
+Streamlit runs the same model in one Python process. It offers household dispatch and rolling updates,
+a Qiskit lab with shot counts and decoded schedules, and a viewer for the recorded experiments. You can
+edit the household JSON in the Dispatch view and download schedules and results. Activate the Python 3.12
+environment from the platform setup above, then run:
+
+```bash
+python -m pip install -r requirements-streamlit.txt
+python -m streamlit run streamlit_app.py --server.address 127.0.0.1
+```
+
+On Windows, use the environment's `python.exe` for both commands if the environment is inactive. Open the
+[Streamlit dashboard](http://127.0.0.1:8501/). For explicit capacity slack, select **Three-slot slack fixture**
+in the Quantum lab. Run `python -m pytest -q tests/test_streamlit.py` to check the Streamlit workflows.
+
 ## Model and algorithms
 
 ![System overview](architecture/system.svg)
@@ -99,7 +115,7 @@ python -m scripts.browser_check
 
 | Path | Contents |
 |---|---|
-| `frontend/`, `backend/` | Dashboard and typed FastAPI endpoints |
+| `frontend/`, `backend/`, `streamlit_app.py` | Dashboards, shared solve service, and typed FastAPI endpoints |
 | `scheduling/`, `classical/`, `quantum/` | Physical model, rolling state, classical household and community solvers, QUBO, Ising and QAOA |
 | `datasets/`, `experiments/`, `results/` | Sources, generators, executed run harness and evidence |
 | `tests/`, `scripts/`, `.github/workflows/` | Validation, browser exercise and CI |
